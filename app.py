@@ -682,11 +682,16 @@ def main():
     # Load Master Directory Setup
     try:
         df_master = pd.read_csv(MASTER_FILE_PATH)
+        
+        # Clean up column names automatically (Fixes hidden BOM characters and trailing spaces)
+        df_master.columns = df_master.columns.str.replace('^\ufeff', '', regex=True).str.strip()
+        
         # Verify exact column names match specifications
         req_cols = ["Division Office Name", "Sub Division", "Office ID", "Sub Office", "Branch Office", "office-type-code", "PIN"]
         for rc in req_cols:
             if rc not in df_master.columns:
                 st.error(f"Critical Error: Master directory file is missing standard column architecture structure: '{rc}'")
+                st.write("Available columns found in your file:", list(df_master.columns))
                 st.stop()
                 
         # Clean master key data types right away
