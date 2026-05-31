@@ -316,7 +316,7 @@ def generate_excel_report(df_final, counts_map, daily_date, cumulative_range, ds
                     8: format_cell_value(sub_totals['doc_rec']), 9: format_cell_value(st_doc),
                     10: format_cell_value(sub_totals['par_rec']), 11: format_cell_value(st_par),
                     12: format_cell_value(sub_totals['dp_rec']), 13: format_cell_value(st_dp),
-                    14: format_cell_value(st_dss_cum), 15: format_cell_value(st_dss_day)
+                    14: format_cell_value(sub_totals['dss_cum_num']), 15: format_cell_value(st_dss_day)
                 }
                 
                 for col_idx in range(1, 16):
@@ -681,7 +681,13 @@ def main():
     
     # Load Master Directory Setup
     try:
-        df_master = pd.read_csv(MASTER_FILE_PATH)
+        # Step 1: Read the file context to dynamically detect delimiter architecture (comma vs tab)
+        with open(MASTER_FILE_PATH, 'r', encoding='utf-8-sig') as f:
+            first_line = f.readline()
+            detected_sep = '\t' if '\t' in first_line else ','
+            
+        # Step 2: Load the dataframe with the dynamically discovered separator parameter
+        df_master = pd.read_csv(MASTER_FILE_PATH, sep=detected_sep)
         
         # Clean up column names automatically (Fixes hidden BOM characters and trailing spaces)
         df_master.columns = df_master.columns.str.replace('^\ufeff', '', regex=True).str.strip()
